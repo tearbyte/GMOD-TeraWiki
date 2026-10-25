@@ -92,6 +92,7 @@ lua/
     ├── highlight.lua           Lua syntax highlighting
     ├── blocks.lua              block types
     ├── ui.lua                  the settings page
+    ├── teralib_warning.lua     window shown without TeraLib
     └── pages/                  the TeraLib pages
 ```
 
@@ -188,5 +189,6 @@ lua/
     ├── highlight.lua           подсветка синтаксиса Lua
     ├── blocks.lua              типы блоков
     ├── ui.lua                  страница в настройках
+    ├── teralib_warning.lua     окно, если TeraLib нет
     └── pages/                  страницы TeraLib
 ```
