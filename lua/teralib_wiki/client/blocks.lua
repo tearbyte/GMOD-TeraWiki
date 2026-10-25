@@ -1,20 +1,8 @@
 
---[[
-	Block types of the wiki pages. A block is a table with the type and its fields:
-		{ type = 'heading', text = ... }
-		{ type = 'text', text = ... }
-		{ type = 'note', text = ... }  -- a highlighted remark
-		{ type = 'code', code = '...' }  -- Lua code with highlighting and a copy button
-		{ type = 'table', columns = { ... }, rows = { { ... }, ... } }
-		{ type = 'example', code = '...', height = 60 }  -- runs the code, the panel to fill is `parent`
-	Texts are TeraLib.lang phrase keys. Other addons add their own types with TeraLibWiki.AddBlockType.
-]]--
-
 local PAGE_PADDING = 8
 local LINE_GAP_MULTIPLIER = 1.2
 local TITLE_FONT_SIZE = 30
 local HEADING_FONT_SIZE = 24
--- The code font is the only own font of the wiki: monospaced, with the size, weight and glyphs of TeraLib.vgui.DEFAULT_FONT
 local CODE_FONT_SIZE = 18
 local CODE_FONT_WEIGHT = 700
 -- Linux fontconfig maps it to a metric-compatible monospaced font
@@ -28,27 +16,22 @@ local COMMENT_ALPHA = 140
 local SELECTION_ALPHA = 120
 local EXAMPLE_BORDER = 2
 local INDENT_WIDTH = 4 -- Spaces a tab is shown with, see highlight.lua
--- A lead byte and its continuation bytes
 local UTF8_CHAR = '[^\128-\191][\128-\191]*'
 local UTF8_LEAD_BYTE = '[^\128-\191]'
-local MIN_ROW_COLUMNS = 20 -- A continuation row isn't indented if fewer columns would be left
+local MIN_ROW_COLUMNS = 20
 local TABLE_LINE_HEIGHT = 20
 local TABLE_HEADER_HEIGHT = 22
 local EXAMPLE_HEIGHT = 60
 local RESET_BUTTON_WIDTH = 110
 local ALIGNMENT_LEFT = 4
 local EXAMPLE_SOURCE = 'TeraLibWiki example'
--- The example code is run as a vararg chunk, its first argument is the panel to fill
+-- The example is a vararg chunk, its first argument is the panel to fill
 local EXAMPLE_PREFIX = 'local parent = ...\n'
 
 TeraLibWiki.FONT_CODE = 'TeraLibWiki.Code'
 
 TeraLibWiki.blockTypes = {}
 
---[[
-	Called on every build: the sizes follow the resolution.
-	The title and the headings use the TeraLib font of bigger sizes.
-]]--
 function TeraLibWiki.CreateFonts()
 
 	TeraLibWiki.FONT_TITLE = TeraLib.vgui.GetFont( TITLE_FONT_SIZE )
@@ -58,19 +41,10 @@ function TeraLibWiki.CreateFonts()
 
 end
 
---[[
-	Add a block type or replace one.
-	@param name string - the type field of the blocks
-	@param build function( parent, block ) - creates the panel of the block docked to TOP inside parent
-]]--
 function TeraLibWiki.AddBlockType( name, build )
 	TeraLibWiki.blockTypes[ name ] = build
 end
 
---[[
-	Lay out the parent and its parent: a scroll panel sizes its canvas in its own layout, not in the layout of the canvas.
-	@param panel Panel
-]]--
 function TeraLibWiki.InvalidateParents( panel )
 
 	local parent = panel:GetParent()
@@ -79,14 +53,6 @@ function TeraLibWiki.InvalidateParents( panel )
 
 end
 
---[[
-	Panel with a text wrapped by its width, its height follows the lines.
-	@param parent Panel
-	@param text string - resolved text
-	@param font string
-	@param color Color|nil - text of the theme if nil
-	@return Panel
-]]--
 function TeraLibWiki.CreateTextPanel( parent, text, font, color )
 
 	local panel = vgui.Create( 'DPanel', parent )
@@ -144,7 +110,6 @@ local TOKEN_COLORS = {
 	[ TeraLibWiki.TOKEN_NUMBER ] = 'active',
 }
 
--- Indentation is shown as spaces, a copied text gets the tabs back
 local function restoreTabs( text )
 
 	return ( string.gsub( text, '^ +', function( spaces )
@@ -153,12 +118,11 @@ local function restoreTabs( text )
 
 end
 
--- Columns count UTF-8 characters. Plain patterns instead of the utf8 library, GMod's one counts its positions differently from Lua 5.3
+-- GMod's utf8 library counts positions differently from Lua 5.3
 local function countChars( text )
 	return select( 2, string.gsub( text, UTF8_LEAD_BYTE, '' ) )
 end
 
--- Byte where the character after the column starts, past the end for the last column
 local function byteOfColumn( text, column )
 
 	local count = 0
@@ -171,22 +135,10 @@ local function byteOfColumn( text, column )
 
 end
 
---[[
-	Characters of a line between two columns. Columns are the gaps between the characters.
-	@param text string
-	@param first number
-	@param last number|nil - up to the end of the line if nil
-	@return string
-]]--
 local function subColumns( text, first, last )
 	return text:sub( byteOfColumn( text, first ), last and byteOfColumn( text, last ) - 1 or #text )
 end
 
---[[
-	Highlighted code where a part can be selected by dragging with the left mouse button.
-	Ctrl+C copies the selection. The font is monospaced, so a column is a fixed width.
-	Long lines are wrapped into rows by the width; the selection is kept in the lines and columns of the code.
-]]--
 local CODE = {}
 
 function CODE:Init()
@@ -226,13 +178,6 @@ function CODE:SetCode( code )
 
 end
 
---[[
-	End column of a row that starts at the column: after the last space that fits, or a hard break without one.
-	@param chars table - characters of the line
-	@param from number
-	@param size number - columns of the row
-	@return number
-]]--
 local function findRowEnd( chars, from, size )
 
 	local limit = from + size
@@ -246,7 +191,6 @@ local function findRowEnd( chars, from, size )
 
 end
 
--- Highlighted pieces of the tokens of a line between two columns
 local function slicePieces( line, from, to, indent )
 
 	local pieces = {}
@@ -266,11 +210,6 @@ local function slicePieces( line, from, to, indent )
 
 end
 
---[[
-	Split the lines into rows of the width. A continuation row is shifted by one indent past the indentation of its line,
-	unless too few columns are left then.
-	@param columns number - columns of a row
-]]--
 function CODE:wrapRows( columns )
 
 	local rows = {}
@@ -295,7 +234,6 @@ function CODE:wrapRows( columns )
 
 end
 
--- The rows depend on the width only, the height follows them
 function CODE:PerformLayout( w )
 
 	if self.wrappedWidth == w then return end
@@ -310,7 +248,6 @@ function CODE:PerformLayout( w )
 
 end
 
--- Line and column of a point of the panel
 function CODE:getPosition( x, y )
 
 	local row = self.rows[ math.Clamp( math.floor( ( y - self.padding ) / self.lineHeight ) + 1, 1, #self.rows ) ]
@@ -320,7 +257,6 @@ function CODE:getPosition( x, y )
 
 end
 
--- Start and end of the selection in reading order, nil without a selection
 function CODE:getSelection()
 
 	local first, last = self.anchor, self.caret
@@ -331,9 +267,6 @@ function CODE:getSelection()
 
 end
 
---[[
-	@return string|nil - the selected code with tabs, nil without a selection
-]]--
 function CODE:GetSelectedText()
 
 	local first, last = self:getSelection()
@@ -350,7 +283,6 @@ function CODE:GetSelectedText()
 
 end
 
--- Copy the selection, or the whole code without one
 function CODE:Copy()
 
 	SetClipboardText( self:GetSelectedText() or self.code )
@@ -434,12 +366,6 @@ end
 
 vgui.Register( 'TeraLibWikiCode', CODE, 'DPanel' )
 
---[[
-	Code with highlighting, selection and a copy button.
-	@param parent Panel
-	@param code string
-	@return Panel
-]]--
 function TeraLibWiki.CreateCodePanel( parent, code )
 
 	local panel = vgui.Create( 'DPanel', parent )
@@ -466,7 +392,6 @@ function TeraLibWiki.CreateCodePanel( parent, code )
 
 	TeraLib.vgui.Label( { parent = header, dock = FILL, text = CODE_LANGUAGE, alignment = ALIGNMENT_LEFT } )
 
-	-- The height follows the rows of the code, see TeraLibWikiCode:PerformLayout
 	return panel
 
 end
@@ -502,12 +427,10 @@ TeraLibWiki.AddBlockType( 'table', function( parent, block )
 		columns = columns,
 		lines = lines,
 	} )
-	-- No scrolling: the table takes the height of its rows
 	listView:SetTall( headerHeight + #lines * lineHeight )
 
 end )
 
--- Clear the example and run its code again, an error is shown instead of the example
 local function runExample( body, code )
 
 	body:Clear()
@@ -537,7 +460,7 @@ TeraLibWiki.AddBlockType( 'example', function( parent, block )
 	body:DockPadding( pad, pad, pad, pad )
 	body:SetTall( TeraLib.util.ScrH( block.height or EXAMPLE_HEIGHT ) )
 
-	-- The window background like the real GUI, the components are drawn with surface and would merge with it
+	-- The components are drawn with surface and would merge with it
 	function body:Paint( w, h )
 
 		local app = TeraLib.vgui.appearance

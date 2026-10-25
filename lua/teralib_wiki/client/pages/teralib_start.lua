@@ -1,6 +1,4 @@
 
--- The TeraLib section and its first page
-
 local SECTION = 'teralib'
 
 TeraLibWiki.AddSection( {

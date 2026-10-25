@@ -1,6 +1,4 @@
 
--- TeraLib page for developers: adding pages of your addon to this wiki
-
 TeraLibWiki.AddPage( {
 	section = 'teralib',
 	id = 'wiki',

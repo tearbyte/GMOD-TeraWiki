@@ -1,6 +1,4 @@
 
--- TeraLib pages for developers: localization, notifications, database, network, logger
-
 local SECTION = 'teralib'
 local DEVELOPERS = TeraLibWiki.AUDIENCE_DEVELOPERS
 

@@ -1,6 +1,4 @@
 
--- The wiki page of the TeraLib settings: navigation by sections on the left, the open page on the right
-
 local PAGE_PADDING = 8
 local ROW_HEIGHT = 24
 local NAV_WIDTH = 280
@@ -15,12 +13,10 @@ local AUDIENCE_ICONS = {
 }
 
 local menuSettings, navScroll, pageScroll
--- Scaled sizes, recalculated on every build: the GUI is rebuilt on resolution change
 local pad, rowHeight
 local audienceFilter = AUDIENCE_ALL
 local searchFilter = ''
 local currentPage
--- Collapsed sections by id, remembered while the game runs
 local collapsed = {}
 local pageButtons = {}
 
@@ -42,7 +38,6 @@ local function openPage( page )
 	TeraLibWiki.CreateTextPanel( pageScroll, TeraLib.lang.GetPhrase( page.title ), TeraLibWiki.FONT_TITLE )
 
 	for _, block in ipairs( page.blocks ) do
-		-- A block type of a newer wiki version is skipped
 		local build = TeraLibWiki.blockTypes[ block.type ]
 		if build then build( pageScroll, block ) end
 	end
@@ -72,7 +67,6 @@ local function fillNav()
 			headerHeight = rowHeight,
 			text = TeraLib.lang.GetPhrase( section.title ),
 			icon = section.icon,
-			-- A search shows every found page
 			expanded = searchFilter ~= '' or not collapsed[ section.id ],
 			OnToggle = function( _, expanded ) collapsed[ section.id ] = not expanded or nil end,
 		} )
@@ -96,7 +90,6 @@ local function fillNav()
 
 end
 
--- The first page of the first section, for the first open
 local function getFirstPage()
 
 	for _, section in ipairs( TeraLibWiki.GetSections() ) do
@@ -152,10 +145,10 @@ local function buildWiki()
 	navScroll = TeraLib.vgui.ScrollPanel( { parent = nav, dock = FILL } )
 
 	pageScroll = TeraLib.vgui.ScrollPanel( { parent = panel, dock = FILL } )
-	-- Not through data: dockMargin of TeraLibScrollPanel reserves a right margin for the scrollbar, which is inside it anyway
+	-- dockMargin of TeraLibScrollPanel overrides the right margin
 	pageScroll:DockMargin( pad, 0, 0, 0 )
 
-	-- Set after choosing the current filter and creating the navigation
+	-- Set after the choice, so it isn't called by it
 	audience.OnSelect = function( _, _, _, value )
 		audienceFilter = value
 		fillNav()
@@ -165,7 +158,6 @@ local function buildWiki()
 	local page = currentPage or getFirstPage()
 	if page then openPage( page ) end
 
-	-- Other addons register pages any time
 	function panel:Think()
 
 		if not TeraLibWiki.changed then return end
@@ -194,11 +186,6 @@ end
 
 TeraLib.OnReady( 'vgui', 'TeraLibWiki.Category', addCategory )
 
---[[
-	Open the wiki in the TeraLib settings, on a page if given.
-	@param sectionId string|nil
-	@param pageId string|nil
-]]--
 function TeraLibWiki.Open( sectionId, pageId )
 
 	local section = sectionId and TeraLibWiki.sections[ sectionId ]

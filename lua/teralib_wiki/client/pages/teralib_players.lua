@@ -1,6 +1,4 @@
 
--- TeraLib pages for players: the settings window and the appearance
-
 local SECTION = 'teralib'
 
 TeraLibWiki.AddPage( {

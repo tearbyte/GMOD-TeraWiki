@@ -1,6 +1,4 @@
 
--- TeraLib pages for developers: the VGUI components with live examples
-
 local SECTION = 'teralib'
 local DEVELOPERS = TeraLibWiki.AUDIENCE_DEVELOPERS
 

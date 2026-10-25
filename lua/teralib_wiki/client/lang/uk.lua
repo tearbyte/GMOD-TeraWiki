@@ -1,6 +1,4 @@
 
--- Ukrainian phrases of the wiki: the interface, the live examples and the TeraLib pages
-
 local PHRASES = {
 	-- Interface
 	[ 'TeraLibWiki.Title' ] = 'Вікі',
