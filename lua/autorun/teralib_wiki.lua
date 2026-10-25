@@ -20,7 +20,7 @@ if SERVER then
 		AddCSLuaFile( ROOT .. 'pages/' .. name )
 	end
 
-	if not TeraLib then MsgC( ERROR_COLOR, '[TeraLib Wiki] TeraLib is not installed, the addon is disabled\n' ) end
+	if not TeraLib then MsgC( ERROR_COLOR, '[TeraWiki] TeraLib is not installed, the addon is disabled\n' ) end
 	return
 
 end

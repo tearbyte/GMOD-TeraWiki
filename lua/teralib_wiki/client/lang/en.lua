@@ -155,7 +155,7 @@ local PHRASES = {
 
 	-- teralib_wiki.lua
 	[ 'TeraLibWiki.Page.Wiki.Title' ] = 'Pages of your addon',
-	[ 'TeraLibWiki.Page.Wiki.Text1' ] = 'Any addon can add its section to this wiki if TeraLib Wiki is installed. Register the pages on InitPostEntity: the wiki is loaded by then for sure, and the open wiki rebuilds its navigation when new pages appear.',
+	[ 'TeraLibWiki.Page.Wiki.Text1' ] = 'Any addon can add its section to this wiki if TeraWiki is installed. Register the pages on InitPostEntity: the wiki is loaded by then for sure, and the open wiki rebuilds its navigation when new pages appear.',
 	[ 'TeraLibWiki.Page.Wiki.Heading1' ] = 'Texts',
 	[ 'TeraLibWiki.Page.Wiki.Text2' ] = 'Every text is a TeraLib.lang phrase key: the title of the section and of the page, the texts of the blocks and the cells of the tables. Register the phrases with TeraLib.lang.Add, a file per language is easier to translate. English is the fallback of the missing translations, a string that isn\'t a key is shown as is.',
 	[ 'TeraLibWiki.Page.Wiki.Heading2' ] = 'Blocks',
