@@ -1,0 +1,11 @@
+{
+  "title": "TeraLib Wiki",
+  "type": "tool",
+  "tags": [
+    "build"
+  ],
+  "ignore": [
+    ".git*",
+    "*.md"
+  ]
+}
